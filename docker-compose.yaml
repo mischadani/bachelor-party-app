@@ -1,8 +1,10 @@
-# volumes:
+volumes:
+  bach-party-data:
+    external: true
+  pg-admin:
+    external: true
 services:
   fastapi:
-    environment:
-      CORS_HOST: http://localhost:3000
     build:
       context: api
       dockerfile: Dockerfile.dev
@@ -10,6 +12,24 @@ services:
       - 8000:8000
     volumes:
       - ./api:/app
+    environment:
+      CORS_HOST: http://localhost:3000
+      WAIT_HOSTS: db:5432
+      WAIT_BEFORE: 5
+      WAIT_TIMEOUT: 60
+      DATABASE_URL: postgresql://bach_party_user:bach_party_$@db/bach_party
+  db:
+    build:
+        context: ./relational-data
+        dockerfile: Dockerfile.dev
+    volumes:
+        - bach-party-data:/var/lib/postgresql/data
+    environment:
+        POSTGRES_USER: bach_party_user
+        POSTGRES_DB: bach_party
+        POSTGRES_PASSWORD: bach_party_$
+    ports:
+        - 15432:5432
 
   ghi:
     image: node:lts-bullseye
@@ -25,3 +45,13 @@ services:
       HOST: "0.0.0.0"
       PUBLIC_URL: http://localhost:3000
       REACT_APP_API_HOST: ${REACT_APP_API_HOST}
+    pg-admin:
+        image: dpage/pgadmin4
+        volumes:
+          - pg-admin:/var/lib/pgadmin
+        ports:
+          - 8082:80
+        environment:
+          PGADMIN_DEFAULT_EMAIL: bach_party@bach_party.com
+          PGADMIN_DEFAULT_PASSWORD: bach_party_$
+          PGADMIN_DISABLE_POSTFIX: 1

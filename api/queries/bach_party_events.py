@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from queries.pool import pool
-from typing import List, Union, Optional
+from typing import List, Union
 from datetime import time, date
 
 
@@ -25,7 +25,8 @@ class BachPartyEventOut(BachPartyEventIn):
 
 class BachPartyEventQueries:
 
-    def get_bach_party_event(self, id: str) -> BachPartyEventOut:
+
+    def get_bach_party_event(self, id: int) -> Union[Error, BachPartyEventOut]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
@@ -62,4 +63,131 @@ class BachPartyEventQueries:
         except Exception:
             return {"message": "Could not get bach party event"}
 
-    def get_all_bach_party_events(self)
+
+    def get_all_bach_party_events(self) -> Union[Error, List[BachPartyEventOut]]:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    result = db.execute(
+                        """
+                        SELECT id
+                        , event_name
+                        , description
+                        , location
+                        , event_date
+                        , start_time
+                        , end_time
+                        , picture_url
+                        , bach_party
+                        FROM events
+                        ORDER BY start_date
+                        """
+                    )
+                    record = result.fetchall()
+                    return record
+        except Exception:
+            return {"message": "Could not get all bach party events"}
+
+
+    def create_bach_party_event(self, bach_party_event: BachPartyEventIn) -> Union[Error, BachPartyEventOut]:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    result = db.execute(
+                        """
+                        INSERT INTO events
+                            (
+                                event_name
+                                , description
+                                , location
+                                , event_date
+                                , start_time
+                                , end_time
+                                , picture_url
+                                , bach_party
+                            )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id;
+                        """,
+                        [
+                            bach_party_event.event_name,
+                            bach_party_event.description,
+                            bach_party_event.location,
+                            bach_party_event.event_date,
+                            bach_party_event.start_time,
+                            bach_party_event.end_time,
+                            bach_party_event.picture_url,
+                            bach_party_event.bach_party,
+                        ]
+                    )
+                    id = result.fetchone()
+                    old_data = bach_party_event.dict()
+                    return BachPartyEventOut(
+                        id=id,
+                        **old_data
+                    )
+        except Exception:
+            return {"message": "Could not create bach party event"}
+
+
+    def update_bach_party_event(self, bach_party_event: BachPartyEventIn, id: int) -> Union[Error, BachPartyEventOut]:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    result = db.execute(
+                        """
+                        UPDATE events
+                        SET event_name = %s
+                        , description = %s
+                        , location = %s
+                        , event_date = %s
+                        , start_time = %s
+                        , end_time = %s
+                        , picture_url = %s
+                        , bach_party = %s
+                        WHERE id = %s
+                        """,
+                        [
+                            bach_party_event.event_name,
+                            bach_party_event.description,
+                            bach_party_event.location,
+                            bach_party_event.event_date,
+                            bach_party_event.start_time,
+                            bach_party_event.end_time,
+                            bach_party_event.picture_url,
+                            bach_party_event.bach_party,
+                            id
+                        ]
+                    )
+                    record = result.fetchone()
+                    if record is None:
+                        return None
+                    return BachPartyEventOut(
+                        id=record[0],
+                        event_name=record[1],
+                        description=record[2],
+                        location=record[3],
+                        event_date=record[4],
+                        start_time=record[5],
+                        end_time=record[6],
+                        picture_url=record[7],
+                        bach_party=record[8],
+                    )
+        except Exception:
+            return {"message": "Could not update bach party event"}
+
+
+    def delete_bach_party_event(self, id: int) -> bool:
+        try:
+            with pool.connection() as conn:
+                with conn.curson() as db:
+                    db.execute(
+                        """
+                        DELETE FROM bach_parties
+                        WHERE id = %s
+                        """,
+                        [id],
+                    )
+                    return True
+        except Exception:
+            return False

@@ -20,13 +20,12 @@ class BachPartyIn(BaseModel):
     status: str
 
 
-
 class BachPartyOut(BachPartyIn):
     id: int
 
 
 class BachPartyQueries:
-    def create_bach_party(self, bach_party: BachPartyIn, id: int) -> BachPartyOut:
+    def create_bach_party(self, bach_party: BachPartyIn) -> BachPartyOut:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
@@ -55,15 +54,14 @@ class BachPartyQueries:
                             bach_party.end_date,
                             bach_party.picture_url,
                             bach_party.host_notes,
-                            bach_party.status
-                        ]
+                            bach_party.status,
+                        ],
                     )
                     id = result.fetchone()[0]
                     old_data = bach_party.dict()
                     return BachPartyOut(id=id, **old_data)
         except Exception:
-            return{"message": "Could not create bachelor party"}
-
+            return {"message": "Could not create bachelor party"}
 
     def get_all_bach_parties(self) -> Union[Error, List[BachPartyOut]]:
         try:
@@ -97,12 +95,12 @@ class BachPartyQueries:
                             end_date=record[6],
                             picture_url=record[7],
                             host_notes=record[8],
-                            status=record[9]
+                            status=record[9],
                         )
                         result.append(bach_party)
                     return result
         except Exception:
-            return({"message": "Could not get all bach parties"})
+            return {"message": "Could not get all bach parties"}
 
     def get_bach_party(self, id: int) -> Optional[BachPartyOut]:
         try:
@@ -122,13 +120,13 @@ class BachPartyQueries:
                         status
                         FROM bach_parties
                         WHERE id = %s
-                        ORDER BY start_date;
                         """,
-                        [id]
+                        [id],
                     )
-                    result = []
-                    for record in db:
-                        bach_party = BachPartyOut(
+                    record = db.fetchone()
+                    if record is None:
+                        return None
+                    return BachPartyOut(
                             id=record[0],
                             name=record[1],
                             description=record[2],
@@ -138,31 +136,29 @@ class BachPartyQueries:
                             end_date=record[6],
                             picture_url=record[7],
                             host_notes=record[8],
-                            status=record[9]
+                            status=record[9],
                         )
-                        result.append(bach_party)
-                    return result
         except Exception:
-            return({"message": "Could not get bach party"})
+            return {"message": "Could not get bach party"}
 
-
-    def update_bach_party(self, id: int, bach_party: BachPartyIn) -> Union[BachPartyOut, Error]:
+    def update_bach_party(
+        self, id: int, bach_party: BachPartyIn
+    ) -> Union[BachPartyOut, Error]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
                     db.execute(
                         """
-                        SELECT id,
-                        name,
-                        description,
-                        host,
-                        location,
-                        start_date,
-                        end_date,
-                        picture_url,
-                        host_notes,
-                        status
-                        FROM bach_parties
+                        UPDATE bach_parties
+                        SET name = %s,
+                        description = %s,
+                        host = %s,
+                        location = %s,
+                        start_date = %s,
+                        end_date = %s,
+                        picture_url = %s,
+                        host_notes = %s,
+                        status = %s
                         WHERE id = %s
                         """,
                         [
@@ -174,14 +170,28 @@ class BachPartyQueries:
                             bach_party.end_date,
                             bach_party.picture_url,
                             bach_party.host_notes,
-                            bach_party.status
-                        ]
+                            bach_party.status,
+                            id
+                        ],
                     )
-                    old_data = bach_party.dict()
-                    return BachPartyOut(id=id, **old_data)
-        except Exception:
-            return({"message": "Could not update bach party"})
+                    record = db.fetchone()
+                    if record is None:
+                        return None 
+                    return BachPartyOut(
+                            id=record[0],
+                            name=record[1],
+                            description=record[2],
+                            host=record[3],
+                            location=record[4],
+                            start_date=record[5],
+                            end_date=record[6],
+                            picture_url=record[7],
+                            host_notes=record[8],
+                            status=record[9],
+                        )
 
+        except Exception:
+            return {"message": "Could not update bach party"}
 
     def delete_bach_party(self, id: int) -> bool:
         try:
@@ -192,8 +202,8 @@ class BachPartyQueries:
                         DELETE FROM bach_parties
                         WHERE id = %s
                         """,
-                        [id]
+                        [id],
                     )
                     return True
         except Exception:
-            return False 
+            return False

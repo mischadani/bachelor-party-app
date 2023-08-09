@@ -300,6 +300,7 @@
             "amount": float,
             "description": string,
             "account": object/int,
+            "date": date
             }
         ]
         }
@@ -322,6 +323,7 @@
             "amount": float,
             "description": string,
             "account": object/int,
+            "date": date
             }
         ]
         }
@@ -344,6 +346,7 @@
             "amount": float,
             "description": string,
             "account": object/int,
+            "date": date
             }
         ]
         }
@@ -366,6 +369,7 @@
             "amount": float,
             "description": string,
             "account": object/int,
+            "date": date
             }
         ]
         }

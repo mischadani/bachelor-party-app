@@ -7,7 +7,7 @@ steps = [
             event_name VARCHAR(100) NOT NULL,
             description TEXT,
             location VARCHAR(200) NOT NULL,
-            date DATE NOT NULL,
+            event_date DATE NOT NULL,
             start_time TIME NOT NULL,
             end_time TIME NOT NULL,
             picture_url VARCHAR(200),

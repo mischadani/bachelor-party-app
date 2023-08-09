@@ -118,7 +118,7 @@ class AccountQueries:
                         id=id, hashed_password=hashed_password, **old_data
                     )
         except Exception:
-            return {"message": "Could not create account"}
+            return ({"message": "Could not create account"})
 
     def update_account(
         self, id: int, account: AccountIn, hashed_password: str
@@ -153,7 +153,7 @@ class AccountQueries:
                     return AccountOutWithPassword(id=id, **old_data)
 
         except Exception:
-            return {"message": "Could not update account"}
+            return({"message": "Could not update account"})
 
     def delete_account(self, id: int) -> bool:
         try:

@@ -9,7 +9,7 @@ steps = [
             hashed_password TEXT NOT NULL,
             phone_number VARCHAR(15) NOT NULL,
             picture_url VARCHAR(200),
-            about_me TINYTEXT
+            about_me TEXT
         );
         """,
         # DROP TABLE

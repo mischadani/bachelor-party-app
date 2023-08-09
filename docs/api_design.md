@@ -93,11 +93,12 @@
             "name": string,
             "description": string,
             "host": object/int,
-            "location": object/int,
+            "picture_url": string,
+            "location": string,
             "start_date": date,
             "end_date": date,
+            "host_notes": string,
             "status": string,
-            "guest_list": list
             }
         ]
         }
@@ -118,11 +119,12 @@
             "name": string,
             "description": string,
             "host": object/int,
-            "location": object/int,
+            "picture_url": string,
+            "location": string,
             "start_date": date,
             "end_date": date,
+            "host_notes": string,
             "status": string,
-            "guest_list": list
             }
         ]
         }
@@ -143,11 +145,12 @@
             "name": string,
             "description": string,
             "host": object/int,
-            "location": object/int,
+            "picture_url": string,
+            "location": string,
             "start_date": date,
             "end_date": date,
+            "host_notes": string,
             "status": string,
-            "guest_list": list
             }
         ]
         }
@@ -183,12 +186,12 @@
         {
           "event_name": string,
           "description": string,
-          "location": object/int,
+          "location": string,
           "date": date,
           "start_time": time,
           "end_time": time,
           "picture_url": string,
-          "bach_party_id": object/int
+          "bach_party": object/int
         }
       ]
     }
@@ -208,12 +211,12 @@
         {
           "event_name": string,
           "description": string,
-          "location": object/int,
+          "location": string,
           "date": date,
           "start_time": time,
           "end_time": time,
           "picture_url": string,
-          "bach_party_id": object/int
+          "bach_party": object/int
         }
       ]
     }
@@ -233,12 +236,12 @@
         {
           "event_name": string,
           "description": string,
-          "location": object/int,
+          "location": string,
           "date": date,
           "start_time": time,
           "end_time": time,
           "picture_url": string,
-          "bach_party_id": object/int
+          "bach_party": object/int
         }
       ]
     }
@@ -268,7 +271,7 @@
         "bach_party": [
             {
             "name": string,
-            "location": object/int,
+            "location": string,
             "start_date": date,
             "end_date": date,
             "status": string
@@ -296,7 +299,7 @@
             "bach_party": object/int,
             "amount": float,
             "description": string,
-            "account_id": object/int,
+            "account": object/int,
             }
         ]
         }
@@ -318,7 +321,7 @@
             "bach_party": object/int,
             "amount": float,
             "description": string,
-            "account_id": object/int,
+            "account": object/int,
             }
         ]
         }
@@ -340,7 +343,7 @@
             "bach_party": object/int,
             "amount": float,
             "description": string,
-            "account_id": object/int,
+            "account": object/int,
             }
         ]
         }
@@ -362,7 +365,7 @@
             "bach_party": object/int,
             "amount": float,
             "description": string,
-            "account_id": object/int,
+            "account": object/int,
             }
         ]
         }

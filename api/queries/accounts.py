@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from queries.pool import pool
 from typing import List, Union
+import psychopg2
 
 
 class DuplicateAccountError(ValueError):
@@ -20,13 +21,8 @@ class AccountIn(BaseModel):
     about_me: str
 
 
-class AccountOut(BaseModel):
+class AccountOut(AccountIn):
     id: str
-    name: str
-    email: str
-    phone_number: str
-    picture_url: str
-    about_me: str
 
 
 class AccountOutWithPassword(AccountOut):
@@ -34,7 +30,6 @@ class AccountOutWithPassword(AccountOut):
 
 
 class AccountQueries:
-
     def get_account(self, id: int) -> AccountOutWithPassword:
         try:
             with pool.connection() as conn:
@@ -51,7 +46,7 @@ class AccountQueries:
                         FROM accounts
                         WHERE id = %s
                         """,
-                        [id]
+                        [id],
                     )
                     record = result.fetchone()
                     if record is None:
@@ -63,10 +58,10 @@ class AccountQueries:
                         hashed_password=record[3],
                         phone_number=record[4],
                         picture_url=record[5],
-                        about_me=record[6]
+                        about_me=record[6],
                     )
         except Exception:
-            return {"message": "Could not get account"}\
+            return {"message": "Could not get account"}
 
     def get_all_accounts(self):
         try:
@@ -89,8 +84,9 @@ class AccountQueries:
         except Exception:
             return {"message": "Could not get account"}
 
-
-    def create_account(self, account: AccountIn, hashed_password: str) -> AccountOutWithPassword:
+    def create_account(
+        self, account: AccountIn, hashed_password: str
+    ) -> AccountOutWithPassword:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
@@ -106,41 +102,40 @@ class AccountQueries:
                         VALUES
                             (%s, %s, %s, %s, %s, %s)
                         RETURNING id;
-                        """
-                        [
+                        """[
                             account.name,
                             account.email,
                             hashed_password,
                             account.phone_number,
                             account.picture_url,
-                            account.about_me
+                            account.about_me,
                         ],
                     )
                     id = result.fetchone()[0]
                     old_data = account.dict()
+
                     return AccountOutWithPassword(
-                        id=id,
-                        hashed_password=hashed_password,
-                        **old_data
+                        id=id, hashed_password=hashed_password, **old_data
                     )
         except Exception:
             return {"message": "Could not create account"}
 
-    def update_account(self, id: int, account: AccountIn, hashed_password: str) -> Union[AccountOut, Error]:
+    def update_account(
+        self, id: int, account: AccountIn, hashed_password: str
+    ) -> Union[AccountOut, Error]:
         try:
             with pool.connection() as conn:
                 with conn.cusor() as db:
                     result = db.execute(
                         """
                         UPDATE accounts
-                        SET
-                            (name=%s,
-                            email=%s,
-                            hashed_password=%s,
-                            phone_number=%s,
-                            picture_url=%s,
-                            about_me=%s)
-                        WHERE id=%s
+                        SET name = %s
+                            , email = %s
+                            , hashed_password = %s
+                            , phone_number = %s
+                            , picture_url = %s
+                            , about_me = %s
+                        WHERE id = %s
                         """,
                         [
                             account.name,
@@ -149,13 +144,29 @@ class AccountQueries:
                             account.phone_number,
                             account.picture_url,
                             account.about_me,
-                            id
-                        ]
+                            id,
+                        ],
                     )
                     id = result.fetchone()[0]
                     old_data = account.dict()
+
                     return AccountOutWithPassword(id=id, **old_data)
 
         except Exception:
             return {"message": "Could not update account"}
 
+    def delete_account(self, id: int) -> bool:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    db.execute(
+                        """
+                        DELETE FROM accounts
+                        WHERE id = %s;
+                        """,
+                        [id],
+                    )
+                    return True
+        except psychopg2.Error as e:
+            print("Could not delete account:", e)
+            return False

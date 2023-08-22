@@ -16,8 +16,7 @@ class BachPartyEventIn(BaseModel):
     start_time: time
     end_time: time
     picture_url: str
-    bach_party: str
-
+    bach_party_id: int
 
 class BachPartyEventOut(BachPartyEventIn):
     id: str
@@ -64,7 +63,7 @@ class BachPartyEventQueries:
             return {"message": "Could not get bach party event"}
 
 
-    def get_all_bach_party_events(self) -> Union[Error, List[BachPartyEventOut]]:
+    def get_all_bach_party_events(self, bach_party_id: int) -> Union[Error, List[BachPartyEventOut]]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
@@ -80,11 +79,26 @@ class BachPartyEventQueries:
                         , picture_url
                         , bach_party
                         FROM events
+                        WHERE bach_party = %s
                         ORDER BY start_date
-                        """
+                        """,
+                        [bach_party_id],
                     )
-                    record = result.fetchall()
-                    return record
+                    bach_party_event_list = []
+                    for record in result:
+                        bach_party_event = BachPartyEventOut(
+                            id=record[0],
+                            event_name=record[1],
+                            description=record[2],
+                            location=record[3],
+                            event_date=record[4],
+                            start_time=record[5],
+                            end_time=record[6],
+                            picture_url=record[7],
+                            bach_party=record[8]
+                        )
+                        bach_party_event_list.append(bach_party_event)
+                    return bach_party_event_list
         except Exception:
             return {"message": "Could not get all bach party events"}
 

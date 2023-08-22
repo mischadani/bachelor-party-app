@@ -12,7 +12,7 @@ steps = [
             start_date DATE NOT NULL,
             end_date DATE NOT NULL,
             host_notes TEXT,
-            status VARCHAR(20) DEFAULT "Upcoming!"
+            status VARCHAR(20) DEFAULT 'Upcoming!'
         );
         """,
         # DROP TABLE

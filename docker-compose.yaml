@@ -4,17 +4,6 @@ volumes:
   pg-admin:
     external: true
 services:
-  db:
-    image: postgres:14.5-bullseye
-    volumes:
-      - bach-party-data:/var/lib/postgresql/data
-    environment:
-        POSTGRES_USER: bach_party_user
-        POSTGRES_DB: bach_party_db
-        POSTGRES_PASSWORD: bach_party_$
-    ports:
-      - 15432:5432
-
   fastapi:
     build:
       context: ./api
@@ -29,7 +18,16 @@ services:
       WAIT_BEFORE: 5
       WAIT_TIMEOUT: 60
       DATABASE_URL: postgresql://bach_party_user:bach_party_$@db/bach_party
-
+  db:
+    image: postgres:14.5-bullseye
+    volumes:
+      - bach-party-data:/var/lib/postgresql/data
+    environment:
+        POSTGRES_USER: bach_party_user
+        POSTGRES_DB: bach_party
+        POSTGRES_PASSWORD: bach_party_$
+    ports:
+      - 15432:5432
   ghi:
     image: node:lts-bullseye
     command: /bin/bash run.sh
@@ -39,18 +37,17 @@ services:
     ports:
       - "3000:3000"
     environment:
-      HOST_OS: ${OS}
       NODE_ENV: development
       HOST: "0.0.0.0"
       PUBLIC_URL: http://localhost:3000
       REACT_APP_BACH_PARTY_API_HOST: http://localhost:8000
-    pg-admin:
-        image: dpage/pgadmin4
-        volumes:
-          - pg-admin:/var/lib/pgadmin
-        ports:
-          - 8082:80
-        environment:
-          PGADMIN_DEFAULT_EMAIL: bach_party@bach_party.com
-          PGADMIN_DEFAULT_PASSWORD: bach_party_$
-          PGADMIN_DISABLE_POSTFIX: 1
+  pg-admin:
+      image: dpage/pgadmin4
+      volumes:
+        - pg-admin:/var/lib/pgadmin
+      ports:
+        - 8082:80
+      environment:
+        PGADMIN_DEFAULT_EMAIL: mischadani@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: bach_party_$
+        PGADMIN_DISABLE_POSTFIX: 1

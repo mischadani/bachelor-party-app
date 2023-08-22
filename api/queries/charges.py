@@ -25,7 +25,7 @@ class ChargeOut(ChargeIn):
 
 
 class ChargeQueries:
-    def create_charge(self, id: int, charge: ChargeIn) -> ChargeOut:
+    def create_charge(self, charge: ChargeIn) -> ChargeOut:
         try:
             with pool.connection as conn:
                 with conn.cursor as db:
@@ -58,7 +58,7 @@ class ChargeQueries:
         except Exception:
             return({"message": "Could not create charge"})
 
-    def get_all_charges(self) -> Union[Error, List[ChargeOut]]:
+    def get_all_charges(self, account_id: int) -> Union[Error, List[ChargeOut]]:
         try:
             with pool.connection as conn:
                 with conn.cursor as db:
@@ -72,8 +72,10 @@ class ChargeQueries:
                         account,
                         date
                         FROM charges
+                        WHERE account = %s
                         ORDER by date;
-                        """
+                        """,
+                        [account_id]
                     )
                     result = []
                     for record in db:

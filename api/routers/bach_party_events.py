@@ -13,6 +13,7 @@ class Error(BaseModel):
 
 
 class BachPartEvent(BaseModel):
+    id: str
     event_name: str
     description: str
     location: str
@@ -21,7 +22,6 @@ class BachPartEvent(BaseModel):
     end_time: str
     picture_url: str
     bach_party: str
-    id: str
 
 
 @router.get(

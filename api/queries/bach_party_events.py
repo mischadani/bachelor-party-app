@@ -159,20 +159,8 @@ class BachPartyEventQueries:
                             id
                         ]
                     )
-                    record = result.fetchone()
-                    if record is None:
-                        return None
-                    return BachPartyEventOut(
-                        id=record[0],
-                        event_name=record[1],
-                        description=record[2],
-                        location=record[3],
-                        event_date=record[4],
-                        start_time=record[5],
-                        end_time=record[6],
-                        picture_url=record[7],
-                        bach_party=record[8],
-                    )
+                    return self.record_bach_party_event_out(id, bach_party_event)
+
         except Exception:
             return {"message": "Could not update bach party event"}
 
@@ -183,7 +171,7 @@ class BachPartyEventQueries:
                 with conn.curson() as db:
                     db.execute(
                         """
-                        DELETE FROM bach_parties
+                        DELETE FROM events
                         WHERE id = %s
                         """,
                         [id],
@@ -191,3 +179,17 @@ class BachPartyEventQueries:
                     return True
         except Exception:
             return False
+
+
+    def record_bach_party_event_out(self, record):
+        return BachPartyEventOut(
+        id=record[0],
+        event_name=record[1],
+        description=record[2],
+        location=record[3],
+        event_date=record[4],
+        start_time=record[5],
+        end_time=record[6],
+        picture_url=record[7],
+        bach_party=record[8],
+    )

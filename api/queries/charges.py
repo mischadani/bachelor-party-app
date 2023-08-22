@@ -119,3 +119,59 @@ class ChargeQueries:
                         )
         except Exception:
             return({"message": "Could not get charge"})
+
+
+    def update_charge(self, id: int, charge: ChargeIn) -> Union[ChargeOut, Error]:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    db.execute(
+                        """
+                        UPDATE events
+                        SET title = %s
+                        , bach_party = %s
+                        , amount = %s
+                        , date = %s
+                        WHERE id = %s
+                        """,
+                        [
+                            charge.title,
+                            charge.bach_party,
+                            charge.amount,
+                            charge.description,
+                            charge.account,
+                            charge.date,
+                            id
+                        ]
+                    )
+                    return self.charge_in_to_out(id, charge)
+
+        except Exception:
+            return {"message": "Could not update charge"}
+
+    def delete_charge(self, id: int) -> bool:
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    db.execute(
+                        """
+                        DELETE FROM charges
+                        WHERE id = %s
+                        """,
+                        [id]
+                    )
+                    return True
+        except Exception:
+            return False
+
+
+    def charge_in_to_out(self, record):
+        return ChargeOut(
+            id=record[0],
+            title=record[1],
+            bach_party=record[2],
+            amount=record[3],
+            description=record[4],
+            account=record[5],
+            date=record[6]
+        )

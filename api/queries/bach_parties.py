@@ -174,21 +174,7 @@ class BachPartyQueries:
                             id
                         ],
                     )
-                    record = db.fetchone()
-                    if record is None:
-                        return None 
-                    return BachPartyOut(
-                            id=record[0],
-                            name=record[1],
-                            description=record[2],
-                            host=record[3],
-                            location=record[4],
-                            start_date=record[5],
-                            end_date=record[6],
-                            picture_url=record[7],
-                            host_notes=record[8],
-                            status=record[9],
-                        )
+                    return self.record_bach_party_out(id, bach_party)
 
         except Exception:
             return {"message": "Could not update bach party"}
@@ -207,3 +193,18 @@ class BachPartyQueries:
                     return True
         except Exception:
             return False
+
+
+    def record_bach_party_out(self, record):
+        return BachPartyOut(
+        id=record[0],
+        name=record[1],
+        description=record[2],
+        host=record[3],
+        location=record[4],
+        start_date=record[5],
+        end_date=record[6],
+        picture_url=record[7],
+        host_notes=record[8],
+        status=record[9],
+    )

@@ -126,7 +126,7 @@ class AccountQueries:
         try:
             with pool.connection() as conn:
                 with conn.cusor() as db:
-                    result = db.execute(
+                    db.execute(
                         """
                         UPDATE accounts
                         SET name = %s
@@ -147,13 +147,11 @@ class AccountQueries:
                             id,
                         ],
                     )
-                    id = result.fetchone()[0]
-                    old_data = account.dict()
-
-                    return AccountOutWithPassword(id=id, **old_data)
+                    return self.account_in_to_out(id, account)
 
         except Exception:
             return({"message": "Could not update account"})
+
 
     def delete_account(self, id: int) -> bool:
         try:
@@ -164,9 +162,13 @@ class AccountQueries:
                         DELETE FROM accounts
                         WHERE id = %s;
                         """,
-                        [id],
+                        [id]
                     )
                     return True
-        except psychopg2.Error as e:
-            print("Could not delete account:", e)
+        except Exception:
             return False
+
+
+    def account_in_to_out(self, id: int, account: AccountIn):
+        old_data = account.dict()
+        return AccountOut(id=id, **old_data)

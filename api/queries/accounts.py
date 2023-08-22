@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 from queries.pool import pool
 from typing import List, Union
-import psychopg2
+import os
+from pool import pool
 
 
 class DuplicateAccountError(ValueError):

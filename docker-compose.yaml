@@ -4,9 +4,20 @@ volumes:
   pg-admin:
     external: true
 services:
+  db:
+    image: postgres:14.5-bullseye
+    volumes:
+      - bach-party-data:/var/lib/postgresql/data
+    environment:
+        POSTGRES_USER: bach_party_user
+        POSTGRES_DB: bach_party_db
+        POSTGRES_PASSWORD: bach_party_$
+    ports:
+      - 15432:5432
+
   fastapi:
     build:
-      context: api
+      context: ./api
       dockerfile: Dockerfile.dev
     ports:
       - 8000:8000
@@ -18,18 +29,6 @@ services:
       WAIT_BEFORE: 5
       WAIT_TIMEOUT: 60
       DATABASE_URL: postgresql://bach_party_user:bach_party_$@db/bach_party
-  db:
-    build:
-        context: ./relational-data
-        dockerfile: Dockerfile.dev
-    volumes:
-        - bach-party-data:/var/lib/postgresql/data
-    environment:
-        POSTGRES_USER: bach_party_user
-        POSTGRES_DB: bach_party
-        POSTGRES_PASSWORD: bach_party_$
-    ports:
-        - 15432:5432
 
   ghi:
     image: node:lts-bullseye
@@ -44,7 +43,7 @@ services:
       NODE_ENV: development
       HOST: "0.0.0.0"
       PUBLIC_URL: http://localhost:3000
-      REACT_APP_API_HOST: ${REACT_APP_API_HOST}
+      REACT_APP_BACH_PARTY_API_HOST: http://localhost:8000
     pg-admin:
         image: dpage/pgadmin4
         volumes:
